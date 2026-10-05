@@ -1,0 +1,257 @@
+-- Tên file lưu key trên thiết bị của bạn
+local FileName = "PulseHub_KeyCache.json"
+local CorrectKey = "PulseHubKeyVskwkej - Nskskwowowoplaowi"
+
+-- Kiểm tra xem đã lưu file và còn hạn 24 giờ hay không
+if writefile and readfile and isfile and isfile(FileName) then
+    local success, data = pcall(function()
+        return game:GetService("HttpService"):JSONDecode(readfile(FileName))
+    end)
+    
+    if success and data and data.Verified and (os.time() - data.Time < 86400) then
+        -- Đã có file lưu hợp lệ trong 24h, tự động vượt qua menu và chạy script
+        local loadSuccess, err = pcall(function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/PulseZax/Loader/refs/heads/main/.lua"))()
+        end)
+        if not loadSuccess then
+            warn("Error loading main script: " .. tostring(err))
+        end
+        return
+    end
+end
+
+-- Kiểm tra và dọn dẹp giao diện cũ tránh xung đột
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+
+if CoreGui:FindFirstChild("PulseHubKeyMenu_Custom") then
+    CoreGui.PulseHubKeyMenu_Custom:Destroy()
+end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "PulseHubKeyMenu_Custom"
+ScreenGui.ResetOnSpawn = false
+
+-- Bảo vệ GUI khỏi một số game chống cheat
+if syn and syn.protect_gui then
+    syn.protect_gui(ScreenGui)
+    ScreenGui.Parent = CoreGui
+elseif gethui then
+    ScreenGui.Parent = gethui()
+else
+    ScreenGui.Parent = CoreGui
+end
+
+-- Khung chính to và cân đối hơn
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 17, 22)
+MainFrame.Position = UDim2.new(0.5, -210, 0.5, -135)
+MainFrame.Size = UDim2.new(0, 420, 0, 270)
+MainFrame.AnchorPoint = Vector2.new(0, 0)
+
+local UICorner = Instance.new("UICorner")
+UICorner.Parent = MainFrame
+UICorner.CornerRadius = UDim.new(0, 14)
+
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Parent = MainFrame
+UIStroke.Color = Color3.fromRGB(0, 136, 255)
+UIStroke.Transparency = 0.4
+UIStroke.Thickness = 1.8
+
+-- Tiêu đề PULSEHUB viết hoa toàn bộ, font chữ đẹp và sắc nét
+local Title = Instance.new("TextLabel")
+Title.Parent = MainFrame
+Title.BackgroundTransparency = 1
+Title.Position = UDim2.new(0, 0, 0, 20)
+Title.Size = UDim2.new(1, 0, 0, 32)
+Title.Font = Enum.Font.GothamBlack
+Title.Text = "PULSEHUB"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 28
+Title.TextXAlignment = Enum.TextXAlignment.Center
+
+local Subtitle = Instance.new("TextLabel")
+Subtitle.Parent = MainFrame
+Subtitle.BackgroundTransparency = 1
+Subtitle.Position = UDim2.new(0, 0, 0, 53)
+Subtitle.Size = UDim2.new(1, 0, 0, 20)
+Subtitle.Font = Enum.Font.GothamMedium
+Subtitle.Text = "Secure Key Authentication System"
+Subtitle.TextColor3 = Color3.fromRGB(140, 145, 160)
+Subtitle.TextSize = 13
+Subtitle.TextXAlignment = Enum.TextXAlignment.Center
+
+-- Ô nhập Key (Chống tràn viền chữ dài)
+local TextBoxBg = Instance.new("Frame")
+TextBoxBg.Parent = MainFrame
+TextBoxBg.BackgroundColor3 = Color3.fromRGB(22, 25, 33)
+TextBoxBg.Position = UDim2.new(0, 25, 0, 92)
+TextBoxBg.Size = UDim2.new(1, -50, 0, 46)
+TextBoxBg.ClipsDescendants = true
+
+local TextBoxStroke = Instance.new("UIStroke")
+TextBoxStroke.Parent = TextBoxBg
+TextBoxStroke.Color = Color3.fromRGB(45, 55, 75)
+TextBoxStroke.Thickness = 1
+
+local TextBoxCorner = Instance.new("UICorner")
+TextBoxCorner.Parent = TextBoxBg
+TextBoxCorner.CornerRadius = UDim.new(0, 8)
+
+local TextBox = Instance.new("TextBox")
+TextBox.Parent = TextBoxBg
+TextBox.BackgroundTransparency = 1
+TextBox.Position = UDim2.new(0, 15, 0, 0)
+TextBox.Size = UDim2.new(1, -30, 1, 0)
+TextBox.Font = Enum.Font.Gotham
+TextBox.PlaceholderText = "Enter your key here..."
+TextBox.Text = ""
+TextBox.TextColor3 = Color3.fromRGB(240, 240, 240)
+TextBox.PlaceholderColor3 = Color3.fromRGB(100, 105, 120)
+TextBox.TextSize = 14
+TextBox.TextXAlignment = Enum.TextXAlignment.Left
+TextBox.ClearTextOnFocus = false
+
+-- Nút Get Key (Bên trái)
+local GetKeyBtn = Instance.new("TextButton")
+GetKeyBtn.Parent = MainFrame
+GetKeyBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+GetKeyBtn.Position = UDim2.new(0, 25, 0, 152)
+GetKeyBtn.Size = UDim2.new(0.5, -28, 0, 44)
+GetKeyBtn.Font = Enum.Font.GothamBold
+GetKeyBtn.Text = ""
+GetKeyBtn.AutoButtonColor = false
+
+local GetKeyCorner = Instance.new("UICorner")
+GetKeyCorner.Parent = GetKeyBtn
+GetKeyCorner.CornerRadius = UDim.new(0, 8)
+
+local GetKeyGradient = Instance.new("UIGradient")
+GetKeyGradient.Parent = GetKeyBtn
+GetKeyGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 45, 60)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 70, 90))
+})
+GetKeyGradient.Rotation = 45
+
+local GetKeyText = Instance.new("TextLabel")
+GetKeyText.Parent = GetKeyBtn
+GetKeyText.BackgroundTransparency = 1
+GetKeyText.Size = UDim2.new(1, 0, 1, 0)
+GetKeyText.Font = Enum.Font.GothamBold
+GetKeyText.Text = "GET KEY"
+GetKeyText.TextColor3 = Color3.fromRGB(255, 255, 255)
+GetKeyText.TextSize = 14
+
+-- Nút Check Key (Bên phải)
+local SubmitBtn = Instance.new("TextButton")
+SubmitBtn.Parent = MainFrame
+SubmitBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+SubmitBtn.Position = UDim2.new(0.5, 3, 0, 152)
+SubmitBtn.Size = UDim2.new(0.5, -28, 0, 44)
+SubmitBtn.Font = Enum.Font.GothamBold
+SubmitBtn.Text = ""
+SubmitBtn.AutoButtonColor = false
+
+local BtnCorner = Instance.new("UICorner")
+BtnCorner.Parent = SubmitBtn
+BtnCorner.CornerRadius = UDim.new(0, 8)
+
+local BtnGradient = Instance.new("UIGradient")
+BtnGradient.Parent = SubmitBtn
+BtnGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 110, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 180, 255))
+})
+BtnGradient.Rotation = 45
+
+local BtnText = Instance.new("TextLabel")
+BtnText.Parent = SubmitBtn
+BtnText.BackgroundTransparency = 1
+BtnText.Size = UDim2.new(1, 0, 1, 0)
+BtnText.Font = Enum.Font.GothamBold
+BtnText.Text = "CHECK KEY"
+BtnText.TextColor3 = Color3.fromRGB(255, 255, 255)
+BtnText.TextSize = 14
+
+-- Thông báo
+local ErrorLabel = Instance.new("TextLabel")
+ErrorLabel.Parent = MainFrame
+ErrorLabel.BackgroundTransparency = 1
+ErrorLabel.Position = UDim2.new(0, 25, 0, 215)
+ErrorLabel.Size = UDim2.new(1, -50, 0, 20)
+ErrorLabel.Font = Enum.Font.GothamMedium
+ErrorLabel.Text = ""
+ErrorLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+ErrorLabel.TextSize = 13
+ErrorLabel.TextXAlignment = Enum.TextXAlignment.Center
+
+-- Hiệu ứng lắc siêu mượt bằng TweenService (Đã tích hợp lại)
+local function shakeFrame()
+    local originalPos = UDim2.new(0.5, -210, 0.5, -135)
+    local tweenInfo = TweenInfo.new(0.04, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+    
+    local p1 = TweenService:Create(MainFrame, tweenInfo, {Position = originalPos + UDim2.new(0, 8, 0, 0)})
+    local p2 = TweenService:Create(MainFrame, tweenInfo, {Position = originalPos + UDim2.new(0, -8, 0, 0)})
+    local p3 = TweenService:Create(MainFrame, tweenInfo, {Position = originalPos + UDim2.new(0, 5, 0, 0)})
+    local p4 = TweenService:Create(MainFrame, tweenInfo, {Position = originalPos + UDim2.new(0, -5, 0, 0)})
+    local p5 = TweenService:Create(MainFrame, tweenInfo, {Position = originalPos + UDim2.new(0, 2, 0, 0)})
+    local p6 = TweenService:Create(MainFrame, tweenInfo, {Position = originalPos})
+
+    p1:Play() p1.Completed:Wait()
+    p2:Play() p2.Completed:Wait()
+    p3:Play() p3.Completed:Wait()
+    p4:Play() p4.Completed:Wait()
+    p5:Play() p5.Completed:Wait()
+    p6:Play()
+end
+
+-- Tính năng Get Key (Copy link)
+local LinkGet = "https://link4m.org/Kylsqg"
+GetKeyBtn.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard(LinkGet)
+        ErrorLabel.TextColor3 = Color3.fromRGB(0, 200, 255)
+        ErrorLabel.Text = "✔ Get Key link copied to clipboard!"
+    else
+        ErrorLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
+        ErrorLabel.Text = "Your executor does not support clipboard."
+    end
+end)
+
+-- Tính năng Check Key & Ghi File lưu trữ 24h
+SubmitBtn.MouseButton1Click:Connect(function()
+    if TextBox.Text == CorrectKey then
+        -- Lưu thông tin xác thực vào file trên máy
+        if writefile then
+            local dataToSave = game:GetService("HttpService"):JSONEncode({
+                Verified = true,
+                Time = os.time()
+            })
+            pcall(function()
+                writefile(FileName, dataToSave)
+            end)
+        end
+
+        ErrorLabel.TextColor3 = Color3.fromRGB(60, 230, 120)
+        ErrorLabel.Text = "✔ Success! Loading script..."
+        task.wait(0.8)
+        ScreenGui:Destroy()
+        
+        -- Gọi script gốc
+        local success, err = pcall(function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/PulseZax/Loader/refs/heads/main/.lua"))()
+        end)
+        if not success then
+            warn("Error loading main script: " .. tostring(err))
+        end
+    else
+        ErrorLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+        ErrorLabel.Text = "✘ Incorrect key! Please try again."
+        TextBox.Text = "" -- Tự động xóa chữ
+        task.spawn(shakeFrame) -- Kích hoạt lại hiệu ứng lắc
+    end
+end)
